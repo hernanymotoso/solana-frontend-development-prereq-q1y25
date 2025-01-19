@@ -14,7 +14,8 @@ const Starter = () => {
     const [counterKey, setCounterKey] = useState("");
     const [count, setCount] = useState<number>(0);
     const [txSig, setTxSig] = useState<string>("");
-    const [customCount, setCustomCount] = useState<number>(0);
+
+    const [customCount, setCustomCount] = useState<number | string>("");
     const [shouldBeClosed, setShouldBeClosed] = useState(false);
     const { connection } = useConnection();
     const { publicKey, wallet} = useWallet();
@@ -124,6 +125,7 @@ const Starter = () => {
                 }
             )
             setTxSig(signature);
+            setCustomCount("");
         } catch(error: any){
             console.log({ error });
             toast.error("Transaction failed!");
@@ -260,6 +262,7 @@ const Starter = () => {
                                 id=""
                                 type="number"
                                 placeholder="Counter value"
+                                value={customCount}
                                 onChange={(e) => setCustomCount(Number(e.target.value))}
                                 className="text-[#9e80ff] py-1 w-full bg-transparent outline-none resize-none border-2 border-transparent border-b-white"        
                             />
@@ -268,9 +271,9 @@ const Starter = () => {
                         <button
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    handleSetCustomCounter(customCount);
+                                    handleSetCustomCounter(+customCount);
                                 }}
-                                disabled={!publicKey || !counterKey || customCount === 0 || shouldBeClosed}
+                                disabled={!publicKey || !counterKey || (customCount === 0 || !customCount) || shouldBeClosed}
                                 className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
                                     rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#7159c1]    
                                 `}
