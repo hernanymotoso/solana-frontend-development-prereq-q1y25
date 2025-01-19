@@ -14,6 +14,7 @@ const Starter = () => {
     const [counterKey, setCounterKey] = useState("");
     const [count, setCount] = useState<number>(0);
     const [txSig, setTxSig] = useState<string>("");
+    const [customCount, setCustomCount] = useState<number>(0);
 
     const { connection } = useConnection();
     const { publicKey, wallet} = useWallet();
@@ -107,6 +108,27 @@ const Starter = () => {
         }
     }
 
+    async function handleSetCustomCounter(customCount: number) {
+        if(!connection || !publicKey) return toast.error("Please connect your wallet.");
+        const transaction = await getPreparedTransaction();
+        const instruction = await counterProgram.methods.set(customCount).accounts({
+            counter: new PublicKey(counterKey),          
+        }).instruction();
+        transaction.add(instruction);
+
+        try {
+            const signature = await provider.sendAndConfirm(
+                transaction, [], {
+                    skipPreflight: true,
+                }
+            )
+            setTxSig(signature);
+        } catch(error: any){
+            console.log({ error });
+            toast.error("Transaction failed!");
+        }
+    }
+
     const outputs = [
         {
             title: "Counter Value...",
@@ -186,6 +208,33 @@ const Starter = () => {
                                 Increment Counter
                             </button>
                         </div>
+                    </div>
+
+                    <div className="flex flex-col mt-8">
+                        <div>
+                            <h3 className="italic text-sm">Number amount</h3>
+
+                            <input 
+                                id=""
+                                type="number"
+                                placeholder="Counter value"
+                                onChange={(e) => setCustomCount(Number(e.target.value))}
+                                className="text-[#9e80ff] py-1 w-full bg-transparent outline-none resize-none border-2 border-transparent border-b-white"        
+                            />
+                        </div>
+
+                        <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSetCustomCounter(customCount);
+                                }}
+                                disabled={!publicKey || !counterKey}
+                                className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
+                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
+                                `}
+                            >
+                                Set Custom Count
+                            </button>
                     </div>
 
                     <div className="text-sm font-semibold mt-8 bg-[#222524] border-2 border-gray-500 rounded-lg p-2">
