@@ -15,9 +15,10 @@ const Starter = () => {
     const [count, setCount] = useState<number>(0);
     const [txSig, setTxSig] = useState<string>("");
     const [customCount, setCustomCount] = useState<number>(0);
-
+    const [shouldBeClosed, setShouldBeClosed] = useState(false);
     const { connection } = useConnection();
     const { publicKey, wallet} = useWallet();
+    const [isClosed, setIsClosed] = useState(false);
 
     const provider = new AnchorProvider(
         connection,
@@ -129,6 +130,26 @@ const Starter = () => {
         }
     }
 
+    async function handleCloseCounter() {
+        if(!connection || !publicKey) return toast.error("Please connect your wallet.");
+        const transaction = await getPreparedTransaction();
+        const instruction = await counterProgram.methods.close().accounts({
+            payer: publicKey,
+            counter: new PublicKey(counterKey),
+        }).instruction();
+        transaction.add(instruction);
+
+        try {
+            const signature = await provider.sendAndConfirm(transaction, [], {
+                skipPreflight: true
+            })
+            setShouldBeClosed(true);
+        } catch(error: any) {
+            console.log({error});
+            toast.error("Transaction failed!");
+        }
+    }
+
     const outputs = [
         {
             title: "Counter Value...",
@@ -138,6 +159,10 @@ const Starter = () => {
             title:"Latest Transaction Signature...",
             dependency: txSig,
             href: `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
+        }, 
+        {
+            title: "Counter Closed...",
+            dependency: isClosed
         }
     ]
     
@@ -154,6 +179,22 @@ const Starter = () => {
         };
         getInfo();
     }, [connection, publicKey, counterKey, txSig]);
+
+    useEffect(() => {
+        const getInfo = async () => {
+            if(connection && publicKey && counterKey && shouldBeClosed) {
+                try {
+                    const userAccount = await counterProgram.account.counter.fetchNullable(
+                        new PublicKey(counterKey)
+                    );
+                    setIsClosed(userAccount === null);
+                } catch(error: any) {
+                    console.log({error});
+                }
+            }
+        }
+        getInfo();
+    }, [connection, publicKey, counterKey, shouldBeClosed, txSig]);
     
     return(
        <main className="min-h-screen text-white max-w-7xl">
@@ -187,7 +228,7 @@ const Starter = () => {
                                     e.preventDefault();
                                     handleDecrementCounter();
                                 }}
-                                disabled={!publicKey || !counterKey || count === 0}
+                                disabled={!publicKey || !counterKey || count === 0 || shouldBeClosed} 
                                 className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
                                     rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]
                                 `}
@@ -200,7 +241,7 @@ const Starter = () => {
                                     e.preventDefault();
                                     handleIncrementCounter();
                                 }}
-                                disabled={!publicKey || !counterKey}
+                                disabled={!publicKey || !counterKey || shouldBeClosed}
                                 className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
                                     rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
                                 `}
@@ -228,13 +269,28 @@ const Starter = () => {
                                     e.preventDefault();
                                     handleSetCustomCounter(customCount);
                                 }}
-                                disabled={!publicKey || !counterKey}
+                                disabled={!publicKey || !counterKey || customCount === 0 || shouldBeClosed}
                                 className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
                                     rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
                                 `}
                             >
                                 Set Custom Count
                             </button>
+                    </div>
+
+                    <div className="flex flex-col mt-8">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleCloseCounter();
+                            }}
+                            disabled={!publicKey || !counterKey || shouldBeClosed}
+                            className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
+                                rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#fa6ece]    
+                            `}
+                        >
+                            Close Counter
+                        </button>
                     </div>
 
                     <div className="text-sm font-semibold mt-8 bg-[#222524] border-2 border-gray-500 rounded-lg p-2">
@@ -255,7 +311,7 @@ const Starter = () => {
                                                 transition-all duration-200
                                             `}
                                         >
-                                            {dependency.toString().slice(0, 25)}
+                                            { typeof dependency === "boolean" ? dependency ? "true" : "false" : dependency.toString().slice(0, 25) }
                                             {href && <ExternalLinkIcon className="w-5 ml-1" />}
                                         </a>
                                     )}
@@ -268,6 +324,5 @@ const Starter = () => {
        </main>
     )
 } 
-
 
 export default Starter;
