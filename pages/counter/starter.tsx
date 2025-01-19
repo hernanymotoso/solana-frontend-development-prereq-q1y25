@@ -165,7 +165,7 @@ const Starter = () => {
                                     e.preventDefault();
                                     handleDecrementCounter();
                                 }}
-                                disabled={!publicKey || !counterKey}
+                                disabled={!publicKey || !counterKey || count === 0}
                                 className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
                                     rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]
                                 `}
