@@ -62,6 +62,10 @@ const Starter = () => {
             )
             setTxSig(signature);
             setCounterKey(counterKeypair.publicKey.toBase58());
+            setCount(0);
+            setCustomCount("");
+            setShouldBeClosed(false);
+
         } catch(error: any){
             console.log({error});
             toast.error("Transaction failed!");
@@ -193,6 +197,8 @@ const Starter = () => {
                 } catch(error: any) {
                     console.log({error});
                 }
+            } else {
+                setIsClosed(false)
             }
         }
         getInfo();
