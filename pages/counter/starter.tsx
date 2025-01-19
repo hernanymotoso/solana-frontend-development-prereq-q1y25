@@ -214,6 +214,7 @@ const Starter = () => {
                             className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
                                 rounded-lg w-auto py-1 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]
                             `}
+                            
                         >
                             Initialize Counter
                         </button>
@@ -243,7 +244,7 @@ const Starter = () => {
                                 }}
                                 disabled={!publicKey || !counterKey || shouldBeClosed}
                                 className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
-                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
+                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#7159c1]    
                                 `}
                             >
                                 Increment Counter
@@ -271,10 +272,10 @@ const Starter = () => {
                                 }}
                                 disabled={!publicKey || !counterKey || customCount === 0 || shouldBeClosed}
                                 className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
-                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
+                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#7159c1]    
                                 `}
                             >
-                                Set Custom Count
+                                Set Value
                             </button>
                     </div>
 
@@ -286,8 +287,9 @@ const Starter = () => {
                             }}
                             disabled={!publicKey || !counterKey || shouldBeClosed}
                             className={`mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
-                                rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#fa6ece]    
+                                rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]    
                             `}
+                            
                         >
                             Close Counter
                         </button>
