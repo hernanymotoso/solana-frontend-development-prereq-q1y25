@@ -86,6 +86,27 @@ const Starter = () => {
         }
     }
 
+    async function handleDecrementCounter() {
+        if(!connection || !publicKey) return toast.error("Please connect your wallet.");
+        const transaction = await getPreparedTransaction();
+        const instruction = await counterProgram.methods.decrement().accounts({
+            counter: new PublicKey(counterKey),
+        }).instruction();
+        transaction.add(instruction);
+
+        try {
+            const signature = await provider.sendAndConfirm(
+                transaction, [], {
+                    skipPreflight: true,
+                }
+            )
+            setTxSig(signature);
+        } catch(error: any){
+            console.log({error});
+            toast.error("Transaction failed!");
+        }
+    }
+
     const outputs = [
         {
             title: "Counter Value...",
@@ -137,19 +158,34 @@ const Starter = () => {
                         {counterKey && (
                             <p className="text-sm text-gray-400">Counter Key: {counterKey}</p>
                         )}
+                        
+                        <div className="flex w-full gap-2">
+                            <button 
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDecrementCounter();
+                                }}
+                                disabled={!publicKey || !counterKey}
+                                className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
+                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]
+                                `}
+                            >
+                                Decrement Counter
+                            </button>
 
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleIncrementCounter();
-                            }}
-                            disabled={!publicKey || !counterKey}
-                            className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#fa6ece] bg-[#fa6ece]
-                                rounded-lg w-auto py-1 font-semibold transition-all duration-200 hover:bg-transparent border-2 border-transparent hover:border-[#fa6ece]
-                            `}
-                        >
-                            Increment Counter
-                        </button>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleIncrementCounter();
+                                }}
+                                disabled={!publicKey || !counterKey}
+                                className={`disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7159c1] bg-[#7159c1]
+                                    rounded-lg w-full py-1 px-2 font-semibold transition-all duration-200 hover:bg-transparent boder-2 border-transparent hover:border-[#7159c1]    
+                                `}
+                            >
+                                Increment Counter
+                            </button>
+                        </div>
                     </div>
 
                     <div className="text-sm font-semibold mt-8 bg-[#222524] border-2 border-gray-500 rounded-lg p-2">
